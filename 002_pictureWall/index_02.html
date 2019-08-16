@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #picturewall {
+            width: 340px;
+            height: 340px;
+            margin: 100px auto;
+        }
+
+        #picturewall img {
+            width: 100px;
+            height: 100px;
+            margin-left: 10px;
+            margin-top: 10px;
+        }
+    </style>
+
+
+</head>
+<script src="js/move.js"></script>
+<script>
+    window.onload = function () {
+        page.init();
+    }
+
+    var page = {
+
+        init: function () {
+            this.picWall();
+        },
+
+        picWall: function () {
+            var oDiv = document.getElementById("picturewall");
+            var aImg = oDiv.getElementsByTagName("img");
+            var aPos = [];
+            var minindex = 2;
+            for (var i = 0; i < aImg.length; i++) {
+                aPos[i] = { left: aImg[i].offsetLeft, Top: aImg[i].offsetTop };
+            }
+
+            for (var i = 0; i < aImg.length; i++) {
+                aImg[i].style.left = aPos[i].left + "px";
+                aImg[i].style.top = aPos[i].Top + "px";
+                aImg[i].style.position = "absolute";
+                aImg[i].style.margin = "0";
+                aImg[i].index = i;
+            }
+
+            for (var i = 0; i < aImg.length; i++) {
+                drag(aImg[i]);
+            }
+
+            function cdTest(obj1, obj2) {
+                var l1 = obj1.offsetLeft;
+                var r1 = obj1.offsetLeft + obj1.offsetWidth;
+                var t1 = obj1.offsetTop;
+                var b1 = obj1.offsetTop + obj1.offsetHeight;
+                var l2 = obj2.offsetLeft;
+                var r2 = obj2.offsetLeft + obj2.offsetWidth;
+                var t2 = obj2.offsetTop;
+                var b2 = obj2.offsetTop + obj2.offsetHeight;
+
+                if (r1 < l2 || b1 < t2 || l1 > r2 || t1 > b2) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            function getDis(obj1, obj2) {
+
+                var a = obj1.offsetLeft - obj2.offsetLeft;
+
+                var b = obj1.offsetTop - obj2.offsetTop;
+
+                return Math.sqrt(a * a + b * b);
+
+            }
+
+            function findNear(obj) {
+                var minNum = 99999;
+                var minIndex = -1;
+                for (var i = 0; i < aImg.length; i++) {
+                    if (cdTest(obj, aImg[i])) {
+                        var dis = getDis(obj, aImg[i]);
+                        if (minNum > dis) {
+                            minNum = dis;
+                            minIndex = i;
+                        }
+                        // aImg[i].style.border = '2px solid yellow';
+                    }
+                    else {
+                        aImg[i].className = "";
+                    }
+                }
+                if (minIndex == -1) {
+                    return null;
+                }
+                else {
+                    return aImg[minIndex];
+                }
+            }
+
+            function drag(obj) {//为每一张图片设置拖拽的功能
+                obj.onmousedown = function (ev) {
+                    var minIndex = 0;
+                    var oEvent = ev || event;
+                    obj.style.zIndex = minIndex++;
+                    var disX = oEvent.clientX - obj.offsetLeft;
+                    var disY = oEvent.clientY - obj.offsetTop;
+                    document.onmousemove = function (ev) {
+                        obj.style.left = oEvent.clientX - disX + 'px';
+                        obj.style.top = oEvent.clientY - disY + 'px';
+
+
+
+                    }
+                    document.onmouseup = function () {
+                        document.onmousemove = document.onmouseup = null;
+                        var nImg = findNear(obj);
+                        var tem = 0;
+                        if (nImg) {
+                            nImg.className = "";
+                            nImg.style.zindex = minIndex++;
+                            obj.style.zIndex = minIndex++;
+                            startMove(nImg, aPos[obj.index]);
+                            startMove(obj, aPos[nImg.index]);
+                            tem = obj.index;//改变索引值
+                            obj.index = nImg.index;
+                            nImg.index = tem;
+                            // nImg.style.border = '';
+                        } else {
+                            startMove(obj, aPos[obj.index]);
+                        }
+                    }
+
+                    function mouseMove(ev) {
+
+                        var oEvent = ev || event;
+
+                        var l = oEvent.clientX - disX;
+
+                        var t = oEvent.clientY - disY;
+
+                        obj.style.left = l + "px";
+
+                        obj.style.top = t + "px";
+
+
+                        //碰撞检测
+                        for (i = 0; i < aLi.length; i++) {
+
+                            aLi[i].className = "";
+
+                        }
+
+                        var oNear = findNearest(obj);
+
+                        if (oNear) {
+
+                            oNear.className = "active";
+
+                        }
+
+                    }
+
+                    return false;
+                }
+
+            }
+        }
+
+
+
+
+
+    }
+
+    
+
+</script>
+
+<body>
+    <div id="picturewall">
+        <img src="img/0.png" />
+        <img src="img/1.png" />
+        <img src="img/2.png" />
+        <img src="img/3.png" />
+        <img src="img/4.png" />
+        <img src="img/5.png" />
+        <img src="img/6.png" />
+        <img src="img/7.png" />
+        <img src="img/8.png" />
+    </div>
+</body>
+
+</html>
